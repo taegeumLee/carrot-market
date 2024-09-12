@@ -36,14 +36,19 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="bg-white shadow-lg p-5 md:flex-row rounded-3xl w-full max-w-screen-sm flex flex-col gap-2 ">
+      <div className="bg-white shadow-lg  p-5 md:flex-row rounded-3xl w-full max-w-screen-sm flex flex-col gap-2 ">
         <input
-          className="w-full rounded-full h-12 bg-gray-200 pl-5 outline-none ring ring-orange-300 ring-offset-2 focus:ring-offset-blue-300 ring-transparent placeholder:drop-shadow-md"
-          type="text"
-          placeholder="Search here..."
+          className="w-full rounded-full h-10 bg-gray-200 pl-5 outline-none ring ring-transparent focus:ring-green-500 focus:ring-offset-2 transition-shadow placeholder:drop-shadow invalid:focus:ring-red-500 peer"
+          type="email"
+          required
+          placeholder="Email address"
         />
-        <button className="bg-black md:px-8 bg-opacity-40  text-white py-2 rounded-full active:scale-90 focus:scale-90 transition-transform font-medium outline-none">
-          Search
+        <span className=" font-medium hidden peer-invalid:block text-red-500">
+          {" "}
+          Email is required
+        </span>
+        <button className="bg-black peer-required:bg-green-500  to-purple-400 md:px-8 bg-opacity-40 peer-invalid:bg-red-100 text-white py-2 rounded-full active:scale-90 focus:scale-90 transition-transform font-medium outline-none">
+          Log In
         </button>
       </div>
     </main>
