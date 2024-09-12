@@ -2,8 +2,8 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <main className="bg-gray-100 h-screen flex items-center justify-center flex-col p-5 dark:bg-gray-700">
-      <div className="bg-white w-full shadow-lg p-5 rounded-3xl max-w-screen-sm mb-5 dark:bg-gray-600">
+    <main className="bg-gray-100 sm:bg-red-100 md:bg-green-100 lg:bg-cyan-100 xl:bg-orange-100 2xl:bg-purple-100  h-screen flex items-center justify-center flex-col p-5">
+      <div className="bg-white  w-full shadow-lg p-5 rounded-3xl max-w-screen-sm mb-5 dark:bg-gray-600">
         <div className="flex justify-between items-center">
           <div className="flex flex-col">
             <span className="text-gray-600 font-semibold -mb-1 dark:text-gray-300">
@@ -36,13 +36,13 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="bg-white shadow-lg p-5 rounded-3xl w-full max-w-screen-sm flex flex-col gap-2 ">
+      <div className="bg-white shadow-lg p-5 md:flex-row rounded-3xl w-full max-w-screen-sm flex flex-col gap-2 ">
         <input
           className="w-full rounded-full h-12 bg-gray-200 pl-5 outline-none ring ring-orange-300 ring-offset-2 focus:ring-offset-blue-300 ring-transparent placeholder:drop-shadow-md"
           type="text"
           placeholder="Search here..."
         />
-        <button className="bg-black bg-opacity-40  text-white py-2 rounded-full active:scale-90 focus:scale-90 transition-transform font-medium outline-none">
+        <button className="bg-black md:px-8 bg-opacity-40  text-white py-2 rounded-full active:scale-90 focus:scale-90 transition-transform font-medium outline-none">
           Search
         </button>
       </div>
