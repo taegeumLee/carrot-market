@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <main className="bg-gray-100 sm:bg-red-100 md:bg-green-100 lg:bg-cyan-100 xl:bg-orange-100 2xl:bg-purple-100  h-screen flex items-center justify-center flex-col p-5">
+    <main className="bg-gray-100 md:bg-green-100 lg:bg-cyan-100 xl:bg-orange-100 2xl:bg-purple-100  h-screen flex items-center justify-center flex-col p-5">
       <div className="bg-white  w-full shadow-lg p-5 rounded-3xl max-w-screen-sm mb-5 dark:bg-gray-600">
         <div className="flex justify-between items-center">
           <div className="flex flex-col">
@@ -36,10 +36,10 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="bg-white shadow-lg  p-5 md:flex-row rounded-3xl w-full max-w-screen-sm flex flex-col gap-2 ">
+      <div className="bg-white shadow-lg  p-5 md:flex-row rounded-3xl w-full max-w-screen-sm flex flex-col gap-2 ring ring-transparent transition-shadow *:outline-none has-[:invalid]:ring-red-100 has-[:invalid]:ring ">
         <input
-          className="w-full rounded-full h-10 bg-gray-200 pl-5 outline-none ring ring-transparent focus:ring-green-500 focus:ring-offset-2 transition-shadow placeholder:drop-shadow invalid:focus:ring-red-500 peer"
-          type="email"
+          className="w-full rounded-full h-10 bg-gray-200 pl-5  ring ring-transparent focus:ring-green-500 focus:ring-offset-2 transition-shadow placeholder:drop-shadow invalid:focus:ring-red-500 peer"
+          type="text"
           required
           placeholder="Email address"
         />
@@ -47,7 +47,7 @@ export default function Home() {
           {" "}
           Email is required
         </span>
-        <button className="bg-black peer-required:bg-green-500  to-purple-400 md:px-8 bg-opacity-40 peer-invalid:bg-red-100 text-white py-2 rounded-full active:scale-90 focus:scale-90 transition-transform font-medium outline-none">
+        <button className="bg-black peer-required:bg-green-500  to-purple-400 md:px-8 bg-opacity-40 peer-invalid:bg-red-100 text-white py-2 rounded-full active:scale-90 focus:scale-90 transition-transform font-medium ">
           Log In
         </button>
       </div>
