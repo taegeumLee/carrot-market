@@ -1,6 +1,7 @@
 import FormButton from "@/components/form-btn";
 import FormInput from "@/components/form-input";
 import SocialLogin from "@/components/social-login";
+import { useFormState, useFormStatus } from "react-dom";
 
 export default function Login() {
   const handleForm = async (data: FormData) => {
@@ -28,7 +29,7 @@ export default function Login() {
           required
           errors={[]}
         />
-        <FormButton loading={false} text="Log In" />
+        <FormButton text="Log In" />
       </form>
       <SocialLogin />
     </div>
