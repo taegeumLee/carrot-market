@@ -1,8 +1,8 @@
 "use server";
 
-export const handleForm = async (data: FormData) => {
+export const handleForm = async (prevState: any, data: FormData) => {
   console.log(data.get("email"), data.get("password"));
   return {
-    error: "wrong email or password",
+    errors: ["wrong email or password", "password is too short"],
   };
 };
