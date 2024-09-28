@@ -22,7 +22,9 @@ export default function FormInput({
         required={required}
       />
       {errors.map((error, index) => (
-        <span key={index} className="text-red-500 font-medium"></span>
+        <span key={index} className="text-red-500 font-medium">
+          {error}
+        </span>
       ))}
     </div>
   );
