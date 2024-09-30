@@ -27,7 +27,7 @@ const formSchema = z
       .min(4, "way too short")
       .max(15, "way too long")
       .trim()
-      .toLowerCase().transform(username => )
+      .toLowerCase()
       .refine(
         (username) => validateUsername(username),
         "username must be unique"
