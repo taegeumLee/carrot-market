@@ -1,9 +1,10 @@
 "use server";
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_REGEX,
+  PASSWORD_REGEX_ERROR,
+} from "@/lib/constants";
 import { z } from "zod";
-
-const passwordRegex = new RegExp(
-  /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/
-);
 
 function validateUsername(username: string) {
   return username.includes("yami");
@@ -24,8 +25,6 @@ const formSchema = z
       .string({
         invalid_type_error: "username must be a string",
       })
-      .min(4, "way too short")
-      .max(15, "way too long")
       .trim()
       .toLowerCase()
       .refine(
@@ -35,11 +34,8 @@ const formSchema = z
     email: z.string().email().toLowerCase(),
     password: z
       .string()
-      .min(10)
-      .regex(
-        passwordRegex,
-        "A password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-      ),
+      .min(PASSWORD_MIN_LENGTH)
+      .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
     confirmPassword: z.string(),
   })
   .refine(({ password, confirmPassword }) => checkPassword, {
