@@ -4,3 +4,7 @@ export const PASSWORD_REGEX = new RegExp(
 );
 export const PASSWORD_REGEX_ERROR =
   "A password must contain at least one uppercase letter, one lowercase letter, one number, and one special character";
+
+export const SMS_TOKEN_MIN_LENGTH = 100000;
+
+export const SMS_TOKEN_MAX_LENGTH = 999999;

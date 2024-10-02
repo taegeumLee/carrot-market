@@ -1,5 +1,5 @@
 "use client";
-import FormButton from "@/components/button";
+import Button from "@/components/button";
 import Input from "@/components/input";
 import SocialLogin from "@/components/social-login";
 import { createAccount } from "./action";
@@ -45,7 +45,7 @@ export default function CreateAccount() {
           errors={state?.fieldErrors?.confirmPassword}
           minLength={PASSWORD_MIN_LENGTH}
         />
-        <FormButton text="Create Account" />
+        <Button text="Create Account" />
       </form>
       <SocialLogin />
     </div>
