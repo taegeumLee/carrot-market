@@ -10,6 +10,7 @@ import bcrypt from "bcrypt";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import getSession from "@/lib/session";
 
 function validateUsername(username: string) {
   return username.includes("yami");
@@ -101,14 +102,10 @@ export async function createAccount(prevState: any, formData: FormData) {
       },
     });
     //log the user in
-    const cookie = await getIronSession(cookies(), {
-      cookieName: "user",
-      password: process.env.COOKIE_PASSWORD!,
-    });
-    //@ts-ignore
-    cookie.id = user.id;
+    const session = await getSession();
+    session.id = user.id;
 
-    await cookie.save();
+    await session.save();
     //redirect to the '/'
     redirect("/profile");
   }
