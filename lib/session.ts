@@ -5,9 +5,11 @@ interface SessionContent {
   id?: number;
 }
 
-export default function getSession() {
+function getSession() {
   return getIronSession<SessionContent>(cookies(), {
     cookieName: "user",
     password: process.env.COOKIE_PASSWORD!,
   });
 }
+
+export default getSession;

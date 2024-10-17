@@ -52,7 +52,7 @@ export const login = async (prevState: any, formData: FormData) => {
     const ok = await bcrypt.compare(result.data.password, user!.password ?? "");
     if (!ok) {
       return {
-        filedErrors: {
+        fieldErrors: {
           password: ["Incorrect password"],
           email: [],
         },
@@ -60,6 +60,7 @@ export const login = async (prevState: any, formData: FormData) => {
     } else {
       const session = await getSession();
       session.id = user!.id;
+      await session.save();
       redirect("/profile");
     }
     //log the user in

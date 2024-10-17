@@ -7,37 +7,12 @@ import {
 import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
-import { getIronSession } from "iron-session";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import getSession from "@/lib/session";
+import getIronUserSession from "@/lib/session";
 
 function validateUsername(username: string) {
   return username.includes("yami");
 }
-const checkUniqueUsername = async (username: string) => {
-  const user = await db.user.findUnique({
-    where: {
-      username: username,
-    },
-    select: {
-      id: true,
-    },
-  });
-  return !Boolean(user);
-};
-
-const checkUniqueEmail = async (email: string) => {
-  const userEmail = await db.user.findUnique({
-    where: {
-      email,
-    },
-    select: {
-      id: true,
-    },
-  });
-  return !Boolean(userEmail);
-};
 
 const checkPassword = ({
   password,
@@ -46,7 +21,7 @@ const checkPassword = ({
   password: string;
   confirmPassword: string;
 }) => {
-  password === confirmPassword;
+  return password === confirmPassword;
 };
 const formSchema = z
   .object({
@@ -55,27 +30,60 @@ const formSchema = z
         invalid_type_error: "username must be a string",
       })
       .trim()
-      .toLowerCase()
-      .refine(
-        (username) => validateUsername(username),
-        "username must be unique"
-      )
-      .refine(checkUniqueUsername, "This username is already taken"),
-    email: z
-      .string()
-      .email()
-      .toLowerCase()
-      .refine(checkUniqueEmail, "There is already an account with this email"),
+      .toLowerCase(),
+    // .refine(
+    //   (username) => validateUsername(username),
+    //   "username must be unique"
+    // ),
+    email: z.string().email().toLowerCase(),
     password: z
       .string()
       .min(PASSWORD_MIN_LENGTH)
       .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
     confirmPassword: z.string(),
   })
-  .refine(({ password, confirmPassword }) => checkPassword, {
-    message: "passwords do not match",
-    path: ["confirmPassword"],
-  });
+  .superRefine(async ({ username }, ctx) => {
+    const user = await db.user.findUnique({
+      where: { username },
+      select: {
+        id: true,
+      },
+    });
+    if (user) {
+      ctx.addIssue({
+        code: "custom",
+        message: "This username is already taken",
+        path: ["username"],
+        fatal: true,
+      });
+      return z.NEVER;
+    }
+  })
+  .superRefine(async ({ email }, ctx) => {
+    const user = await db.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+      },
+    });
+    if (user) {
+      ctx.addIssue({
+        code: "custom",
+        message: "There is already an account with this email",
+        path: ["email"],
+        fatal: true,
+      });
+      return z.NEVER;
+    }
+  })
+  .refine(
+    ({ password, confirmPassword }) =>
+      checkPassword({ password, confirmPassword }),
+    {
+      message: "passwords do not match",
+      path: ["confirmPassword"],
+    }
+  );
 
 export async function createAccount(prevState: any, formData: FormData) {
   const data = {
@@ -102,7 +110,7 @@ export async function createAccount(prevState: any, formData: FormData) {
       },
     });
     //log the user in
-    const session = await getSession();
+    const session = await getIronUserSession();
     session.id = user.id;
 
     await session.save();
