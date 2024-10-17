@@ -11,10 +11,6 @@ import { redirect } from "next/navigation";
 import getIronUserSession from "@/lib/session/session";
 import UpdateSession from "@/lib/session/updateSession";
 
-function validateUsername(username: string) {
-  return username.includes("yami");
-}
-
 const checkPassword = ({
   password,
   confirmPassword,

@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { NextResponse } from "next/server";
 
 export async function GET() {
   const BASE_URL = "https://github.com/login/oauth/authorize";
