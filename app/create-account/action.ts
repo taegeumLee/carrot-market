@@ -8,7 +8,8 @@ import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
-import getIronUserSession from "@/lib/session";
+import getIronUserSession from "@/lib/session/session";
+import UpdateSession from "@/lib/session/updateSession";
 
 function validateUsername(username: string) {
   return username.includes("yami");
@@ -110,10 +111,7 @@ export async function createAccount(prevState: any, formData: FormData) {
       },
     });
     //log the user in
-    const session = await getIronUserSession();
-    session.id = user.id;
-
-    await session.save();
+    await UpdateSession(user.id);
     //redirect to the '/'
     redirect("/profile");
   }

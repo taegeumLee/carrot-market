@@ -1,4 +1,4 @@
-import getSession from "@/lib/session";
+import getSession from "@/lib/session/session";
 import { Elsie_Swash_Caps } from "next/font/google";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,6 +11,8 @@ const publicOnlyURLs: Routes = {
   "/login": true,
   "/sms": true,
   "/create-account": true,
+  "/github/start": true,
+  "/github/complete": true,
 };
 
 export async function middleware(request: NextRequest) {
@@ -28,5 +30,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/profile", "/create-account", "/user/:path*"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
