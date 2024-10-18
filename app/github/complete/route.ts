@@ -8,16 +8,23 @@ import isExistUsername from "../isExistUsername";
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
+  console.log("Received GitHub code:", code);
+
   if (!code) {
     return NextResponse.json({ error: "Code not found" }, { status: 404 });
   }
 
   const { error, access_token } = await getAccessToken(code);
+  console.log("getAccessToken result:", { error, access_token });
+
   if (error) {
-    return NextResponse.json({ error: "GitHub 인증 오류" }, { status: 400 });
+    console.error("GitHub 인증 오류:", error);
+    return NextResponse.json(
+      { error: "GitHub 인증 오류", details: error },
+      { status: 400 }
+    );
   }
 
-  const email = await getGithubEmail(access_token);
   const { id, name, profile_photo } = await getGithubProfile(access_token);
 
   const user = await db.user.findUnique({
@@ -34,6 +41,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/profile", request.url));
   }
 
+  const email = await getGithubEmail(access_token);
   const isExist = await isExistUsername(name);
 
   const newUser = await db.user.create({
@@ -49,5 +57,5 @@ export async function GET(request: NextRequest) {
   });
 
   await UpdateSession(newUser.id);
-  return NextResponse.redirect(new URL("/profile", request.url));
+  return NextResponse.redirect(new URL("/products", request.url));
 }
