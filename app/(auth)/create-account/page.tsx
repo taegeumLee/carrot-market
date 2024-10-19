@@ -6,8 +6,12 @@ import { createAccount } from "./action";
 import { useFormState } from "react-dom";
 import { PASSWORD_MIN_LENGTH } from "@/lib/constants";
 
+// createAccount 함수의 타입을 수정합니다
+const createAccountWithPrevState = (prevState: any, formData: FormData) =>
+  createAccount(formData);
+
 export default function CreateAccount() {
-  const [state, dispatch] = useFormState(createAccount, null);
+  const [state, dispatch] = useFormState(createAccountWithPrevState, null);
   return (
     <div className="flex flex-col gap-10 py-6">
       <div className="flex flex-col gap-2 *:font-medium">

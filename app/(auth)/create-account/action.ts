@@ -8,7 +8,7 @@ import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
-import getIronUserSession from "@/lib/session/session";
+
 import UpdateSession from "@/lib/session/updateSession";
 
 const checkPassword = ({
@@ -82,7 +82,7 @@ const formSchema = z
     }
   );
 
-export async function createAccount(prevState: any, formData: FormData) {
+export async function createAccount(formData: FormData) {
   const data = {
     username: formData.get("username"),
     email: formData.get("email"),

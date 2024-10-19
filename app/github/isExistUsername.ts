@@ -1,5 +1,4 @@
 import PrismaDB from "@/lib/db";
-import { User } from "@prisma/client";
 
 export default async function isExistUsername(
   username: string

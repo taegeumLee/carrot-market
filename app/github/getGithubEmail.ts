@@ -10,7 +10,7 @@ export default async function getGithubEmail(
   let email = "";
   const githubEmail = await userEmailResponse.json();
 
-  for (let mail of githubEmail) {
+  for (const mail of githubEmail) {
     if (mail.primary && mail.verified && mail.visibility === "public") {
       email = mail.email;
       break;

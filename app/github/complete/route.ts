@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
   if (user) {
     await UpdateSession(user.id);
-    return NextResponse.redirect(new URL("/profile", request.url));
+    return NextResponse.redirect(new URL("/products", request.url));
   }
 
   const email = await getGithubEmail(access_token);

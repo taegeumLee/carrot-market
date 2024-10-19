@@ -1,5 +1,4 @@
 import { formatToDate, formatToWon } from "@/lib/utils";
-import { Product } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -19,9 +18,12 @@ export default function ListProduct({
   id,
 }: ListProductProps) {
   return (
-    <Link href={`/products/${id}`} className="flex gap-5">
+    <Link
+      href={`/products/${id}`}
+      className="flex gap-5 p-3 bg-neutral-800 rounded-lg"
+    >
       <div className="relative size-28 rounded-md overflow-hidden">
-        <Image fill src={photos} alt={title} />
+        <Image fill src={photos} alt={title} className="object-cover" />
       </div>
 
       <div className="flex flex-col gap-1 *:text-white">
