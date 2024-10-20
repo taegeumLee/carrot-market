@@ -18,7 +18,7 @@ async function getInitialProducts() {
   });
   return products;
 }
-
+const u = "헤헤";
 export type InitialProduct = Prisma.PromiseReturnType<
   typeof getInitialProducts
 >;
