@@ -5,12 +5,23 @@ import Input from "@/components/input";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import { getUploadURL, uploadProduct } from "./action";
+import { useForm } from "react-hook-form";
 import { useFormState } from "react-dom";
-
+import { zodResolver } from "@hookform/resolvers/zod";
+import { productSchema, ProductType } from "./schema";
 export default function UploadProduct() {
   const [preview, setPreview] = useState("");
   const [uploadURL, setUploadURL] = useState("");
-  const [imageId, setImageId] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    setError,
+    formState: { errors },
+  } = useForm<ProductType>({
+    resolver: zodResolver(productSchema),
+  });
   const onImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { files },
@@ -19,16 +30,19 @@ export default function UploadProduct() {
     const file = files[0];
     const url = URL.createObjectURL(file);
     setPreview(url);
+    setFile(file);
     const { success, result } = await getUploadURL();
     if (success) {
       const { id, uploadURL } = result;
       setUploadURL(uploadURL);
-      setImageId(id);
+      setValue(
+        "photos",
+        `https://imagedelivery.net/yjrOsMtY-Fgziaxi8JHHFw/${id}`
+      );
     }
   };
-  const interceptAction = async (_: any, formData: FormData) => {
-    //upload image to cloudfare
-    const file = formData.get("photo");
+
+  const onSubmit = handleSubmit(async (data: ProductType) => {
     if (!file) return;
     const cloudfareForm = new FormData();
     cloudfareForm.append("file", file);
@@ -38,15 +52,25 @@ export default function UploadProduct() {
     });
     if (response.status !== 200) return;
     //replace 'photo' in formData
-    const photoURL = `https://imagedelivery.net/yjrOsMtY-Fgziaxi8JHHFw/${imageId}`;
-    formData.set("photo", photoURL);
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("price", data.price);
+    formData.append("description", data.description);
+    formData.append("photo", data.photos);
     //call upload product
-    return uploadProduct(_, formData);
+    const errors = await uploadProduct(formData);
+    if (errors) {
+      // setError("");
+    }
+  });
+
+  const onValid = async () => {
+    await onSubmit();
   };
-  const [state, action] = useFormState(interceptAction, null);
+
   return (
     <div>
-      <form className="p-5 flex flex-col gap-5 " action={action}>
+      <form className="p-5 flex flex-col gap-5 " action={onValid}>
         <label
           htmlFor="photo"
           className="border-2 aspect-square flex justify-center items-center flex-col text-neutral-300 border-neutral-300 rounded-md border-dashed cursor-pointer"
@@ -61,9 +85,9 @@ export default function UploadProduct() {
             <>
               <PhotoIcon className="size-20" />
               <div className="text-neutral-400 text-sm">Upload Photo</div>
-              {state?.error.fieldErrors.photos && (
+              {errors.photos?.message && (
                 <div className="text-red-500 text-sm">
-                  {state.error.fieldErrors.photos}
+                  {errors.photos?.message}
                 </div>
               )}
             </>
@@ -74,28 +98,29 @@ export default function UploadProduct() {
           type="file"
           id="photo"
           name="photo"
+          accept="image/*"
           className="hidden"
         />
         <Input
-          name="title"
+          {...register("title")}
           required
           placeholder="title"
           type="text"
-          errors={state?.error.fieldErrors.title}
+          errors={[errors.title?.message ?? ""]}
         />
         <Input
-          name="price"
+          {...register("price")}
           required
           placeholder="price"
           type="number"
-          errors={state?.error.fieldErrors.price}
+          errors={[errors.price?.message ?? ""]}
         />
         <Input
-          name="description"
+          {...register("description")}
           required
           placeholder="description"
           type="text"
-          errors={state?.error.fieldErrors.description}
+          errors={[errors.description?.message ?? ""]}
         />
         <Button text="Upload Product" />
       </form>

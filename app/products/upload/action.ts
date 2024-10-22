@@ -5,29 +5,9 @@ import getSession from "@/lib/session/session";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import fs from "fs/promises";
-const productSchema = z.object({
-  title: z
-    .string({
-      required_error: "제목은 필수입니다",
-    })
-    .min(2)
-    .max(40),
-  price: z
-    .string({
-      required_error: "가격은 필수입니다",
-    })
-    .min(1),
-  description: z
-    .string({
-      required_error: "설명은 필수입니다",
-    })
-    .max(200),
-  photos: z.string({
-    required_error: "사진은 필수입니다",
-  }),
-});
+import { productSchema } from "./schema";
 
-export async function uploadProduct(_: any, formData: FormData) {
+export async function uploadProduct(formData: FormData) {
   const data = {
     title: formData.get("title"),
     price: formData.get("price"),
