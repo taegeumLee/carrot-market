@@ -34,11 +34,7 @@ export async function uploadProduct(_: any, formData: FormData) {
     description: formData.get("description"),
     photos: formData.get("photo"),
   };
-  if (data.photos instanceof File) {
-    const photoData = await data.photos.arrayBuffer();
-    await fs.appendFile(`./public/${data.photos.name}`, Buffer.from(photoData));
-    data.photos = `/${data.photos.name}`;
-  }
+
   const result = productSchema.safeParse(data);
   if (!result.success) {
     return { error: result.error.flatten() };
@@ -64,4 +60,18 @@ export async function uploadProduct(_: any, formData: FormData) {
       redirect(`/products/${product.id}`);
     }
   }
+}
+
+export async function getUploadURL() {
+  const response = await fetch(
+    `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFARE_ACCOUNT_ID}/images/v2/direct_upload`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.CLOUDFARE_API_KEY}`,
+      },
+    }
+  );
+  const data = await response.json();
+  return data;
 }

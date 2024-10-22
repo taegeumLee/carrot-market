@@ -64,7 +64,7 @@ export default async function ProductDetail({
       <div className="relative size-auto aspect-square ">
         <Image
           fill
-          src={product.photos}
+          src={product.photos + "/public"}
           alt={product.title}
           className="object-cover"
         />
