@@ -29,7 +29,7 @@ interface TabItem {
 
 const tabItems: TabItem[] = [
   {
-    href: "/products",
+    href: "/home",
     label: "Home",
     SolidIcon: HomeIcon,
     OutlineIcon: OutlineHomeIcon,
