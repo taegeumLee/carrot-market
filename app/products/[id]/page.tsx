@@ -1,11 +1,11 @@
 import db from "@/lib/db";
-import getSession from "@/lib/session/session";
 import { formatToDate, formatToWon } from "@/lib/utils";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { unstable_cache as nextCache } from "next/cache";
+import getSession from "@/lib/session/session";
 
 const getCachedProduct = nextCache(getProduct, ["product-detail"], {
   tags: ["product-detail"],
@@ -86,7 +86,7 @@ export default async function ProductDetail({
         id: id,
       },
     });
-    redirect("/products");
+    redirect("/home");
   };
 
   return (
@@ -129,12 +129,22 @@ export default async function ProductDetail({
           {formatToWon(product.price)}
         </span>
         <div className="flex items-center">
-          <Link
-            className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
-            href={""}
-          >
-            Chat
-          </Link>
+          {isOwner ? (
+            <Link
+              className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
+              href={`/products/${id}/edit`}
+            >
+              Edit
+            </Link>
+          ) : (
+            <Link
+              className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
+              href={""}
+            >
+              Chat
+            </Link>
+          )}
+
           {isOwner ? (
             <form action={onDelete}>
               <button className="bg-red-500 px-5 py-2.5 mx-2 rounded-md text-white font-semibold">
@@ -146,4 +156,13 @@ export default async function ProductDetail({
       </div>
     </div>
   );
+}
+
+export async function generateStaticParams() {
+  const products = await db.product.findMany({
+    select: {
+      id: true,
+    },
+  });
+  return products.map((product) => ({ id: product.id + "" }));
 }
