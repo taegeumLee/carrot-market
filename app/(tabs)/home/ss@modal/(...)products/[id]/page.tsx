@@ -5,12 +5,6 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { formatToWon } from "@/lib/utils";
 
-export const metadata = {
-  title: "Home",
-};
-
-export const revalidate = 60;
-
 async function getProduct(id: number) {
   const product = await db.product.findUnique({
     where: {

@@ -1,5 +1,4 @@
 "use client";
-
 import Button from "@/components/button";
 import Input from "@/components/input";
 import SocialLogin from "@/components/social-login";

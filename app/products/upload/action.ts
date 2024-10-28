@@ -3,7 +3,8 @@
 import db from "@/lib/db";
 import getSession from "@/lib/session/session";
 import { redirect } from "next/navigation";
-
+import { z } from "zod";
+import fs from "fs/promises";
 import { productSchema } from "./schema";
 
 export async function uploadProduct(formData: FormData) {

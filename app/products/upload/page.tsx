@@ -6,6 +6,7 @@ import { PhotoIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import { getUploadURL, uploadProduct } from "./action";
 import { useForm } from "react-hook-form";
+import { useFormState } from "react-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema, ProductType } from "./schema";
 import Image from "next/image";
@@ -18,6 +19,7 @@ export default function UploadProduct() {
     register,
     handleSubmit,
     setValue,
+    setError,
     formState: { errors },
   } = useForm<ProductType>({
     resolver: zodResolver(productSchema),
