@@ -12,7 +12,7 @@ export async function uploadProduct(formData: FormData) {
     title: formData.get("title"),
     price: formData.get("price"),
     description: formData.get("description"),
-    photos: formData.get("photo"),
+    photos: formData.get("photos"), // photo -> photos로 수정
   };
 
   const result = productSchema.safeParse(data);
@@ -37,6 +37,7 @@ export async function uploadProduct(formData: FormData) {
           id: true,
         },
       });
+      console.log(product);
       redirect(`/products/${product.id}`);
     }
   }

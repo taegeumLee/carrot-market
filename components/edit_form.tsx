@@ -33,7 +33,7 @@ const EditForm = ({
   product: ProductType;
   isOwner: boolean;
 }) => {
-  const [preview, setPreview] = useState(`${product.photos}`);
+  const [preview, setPreview] = useState(product.photos);
   const [uploadUrl, setUploadUrl] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const {

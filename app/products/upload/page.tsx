@@ -6,10 +6,8 @@ import { PhotoIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import { getUploadURL, uploadProduct } from "./action";
 import { useForm } from "react-hook-form";
-import { useFormState } from "react-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema, ProductType } from "./schema";
-import Image from "next/image";
 
 export default function UploadProduct() {
   const [preview, setPreview] = useState("");
@@ -48,6 +46,7 @@ export default function UploadProduct() {
       const { success, result } = await getUploadURL();
       if (success) {
         const { id, uploadURL } = result;
+
         setUploadURL(uploadURL);
         setValue(
           "photos",
@@ -68,21 +67,31 @@ export default function UploadProduct() {
 
   const onSubmit = handleSubmit(async (data: ProductType) => {
     if (!file) return;
-    const cloudfareForm = new FormData();
-    cloudfareForm.append("file", file);
-    const response = await fetch(uploadURL, {
-      method: "POST",
-      body: cloudfareForm,
-    });
-    if (response.status !== 200) return;
-    //replace 'photo' in formData
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("price", data.price);
-    formData.append("description", data.description);
-    formData.append("photos", data.photos);
 
-    await uploadProduct(formData);
+    try {
+      const cloudfareForm = new FormData();
+      cloudfareForm.append("file", file);
+      const response = await fetch(uploadURL, {
+        method: "POST",
+        body: cloudfareForm,
+      });
+
+      if (!response.ok) {
+        console.error("이미지 업로드 실패:", await response.text());
+        return;
+      }
+
+      // 제품 정보 업로드
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("price", data.price);
+      formData.append("description", data.description);
+      formData.append("photos", data.photos);
+
+      await uploadProduct(formData);
+    } catch (error) {
+      console.error("업로드 중 오류 발생:", error);
+    }
   });
 
   const onValid = async () => {
@@ -97,10 +106,9 @@ export default function UploadProduct() {
           className="border-2 aspect-square flex justify-center items-center flex-col text-neutral-300 border-neutral-300 rounded-md border-dashed cursor-pointer"
         >
           {preview ? (
-            <Image
-              src={preview}
-              alt="preview"
-              fill
+            <img
+              src={`${preview}`}
+              alt={`${preview}/public`}
               className="w-full h-full object-cover"
             />
           ) : (
