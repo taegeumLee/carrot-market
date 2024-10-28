@@ -5,12 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { unstable_cache as nextCache } from "next/cache";
 import getSession from "@/lib/session/session";
 
 const getCachedProduct = nextCache(getProduct, ["product-detail"], {
   tags: ["product-detail"],
 });
+=======
+>>>>>>> parent of 7243576 (revalidate)
 =======
 >>>>>>> parent of 7243576 (revalidate)
 
