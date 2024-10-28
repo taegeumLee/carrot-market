@@ -1,14 +1,9 @@
-export default function HomeLayout({
-  children,
-  modal,
-}: {
-  children: React.ReactNode;
-  modal: React.ReactNode;
-}) {
-  return (
-    <>
-      {children}
-      {modal}
-    </>
-  );
+import { ReactNode } from "react";
+
+interface HomeLayoutProps {
+  children: ReactNode;
+}
+
+export default function HomeLayout({ children }: HomeLayoutProps) {
+  return <div>{children}</div>;
 }

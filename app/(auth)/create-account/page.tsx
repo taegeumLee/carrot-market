@@ -7,9 +7,20 @@ import { createAccount } from "./action";
 import { useFormState } from "react-dom";
 import { PASSWORD_MIN_LENGTH } from "@/lib/constants";
 
-// createAccount 함수의 타입을 수정합니다
-const createAccountWithPrevState = (prevState: any, formData: FormData) =>
-  createAccount(formData);
+// prevState의 타입을 명시적으로 정의
+interface FormState {
+  fieldErrors?: {
+    username?: string[];
+    email?: string[];
+    password?: string[];
+    confirmPassword?: string[];
+  };
+}
+
+const createAccountWithPrevState = (
+  prevState: FormState | null,
+  formData: FormData
+) => createAccount(formData);
 
 export default function CreateAccount() {
   const [state, dispatch] = useFormState(createAccountWithPrevState, null);

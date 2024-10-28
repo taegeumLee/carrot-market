@@ -16,6 +16,8 @@ export default function ProductList({ initialProducts }: ProductListProps) {
   const observerTarget = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const currentObserverTarget = observerTarget.current;
+
     const observer = new IntersectionObserver(
       async (entries) => {
         if (entries[0].isIntersecting && hasMore && !isLoading) {
@@ -33,13 +35,13 @@ export default function ProductList({ initialProducts }: ProductListProps) {
       { threshold: 1.0 }
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
+    if (currentObserverTarget) {
+      observer.observe(currentObserverTarget);
     }
 
     return () => {
-      if (observerTarget.current) {
-        observer.unobserve(observerTarget.current);
+      if (currentObserverTarget) {
+        observer.unobserve(currentObserverTarget);
       }
     };
   }, [page, hasMore, isLoading]);

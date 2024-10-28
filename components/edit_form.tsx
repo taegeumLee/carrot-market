@@ -1,6 +1,5 @@
 "use client";
 
-import { formatToWon } from "@/lib/utils";
 import { PhotoIcon, UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Input from "@/components/input";
@@ -46,23 +45,45 @@ const EditForm = ({
   } = useForm<ProductType>({
     resolver: zodResolver(productSchema),
   });
-  const onSubmit = async (data: ProductType) => {
-    try {
-      const formData = new FormData();
-      formData.append("id", id.toString());
-      formData.append("title", data.title);
-      formData.append("price", data.price);
-      formData.append("description", data.description);
-      formData.append("photos", data.photos);
-      const errors = await editProduct(formData);
-      if (errors) {
-        setError("root", { message: "Failed to update product" });
+  const onSubmit = handleSubmit(async (data: ProductType) => {
+    if (!file && !preview) return;
+    if (file) {
+      const photoId = product.photos.split(
+        `https://imagedelivery.net/yjrOsMtY-Fgziaxi8JHHFw/`
+      )[1];
+      await deletePhoto(photoId);
+      const cloudflareForm = new FormData();
+      cloudflareForm.append("file", file);
+      const response = await fetch(uploadUrl, {
+        method: "POST",
+        body: cloudflareForm,
+      });
+      if (response.status !== 200) {
+        return alert("이미지 업로드에 실패했습니다.");
       }
-    } catch (error) {
-      console.error("Error updating product:", error);
-      setError("root", { message: "An unexpected error occurred" });
     }
-  };
+    const formData = new FormData();
+    formData.append("id", id + "");
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("price", data.price + "");
+    formData.append("photos", data.photos);
+    const errors = await editProduct(formData);
+    if (errors) {
+      if (errors.fieldErrors.photos) {
+        setError("photos", { message: errors.fieldErrors.photos[0] });
+      }
+      if (errors.fieldErrors.title) {
+        setError("title", { message: errors.fieldErrors.title[0] });
+      }
+      if (errors.fieldErrors.price) {
+        setError("price", { message: errors.fieldErrors.price[0] });
+      }
+      if (errors.fieldErrors.description) {
+        setError("description", { message: errors.fieldErrors.description[0] });
+      }
+    }
+  });
   const onImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { files },
@@ -85,6 +106,9 @@ const EditForm = ({
       );
     }
   };
+  const onValid = async () => {
+    await onSubmit();
+  };
   useEffect(() => {
     const photoId = product.photos.split(
       "https://imagedelivery.net/yjrOsMtY-Fgziaxi8JHHFw/"
@@ -95,91 +119,96 @@ const EditForm = ({
     );
   }, [product, setValue]);
   return (
-    <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="relative size-auto aspect-square">
-          <label
-            htmlFor="photo"
-            className="border-2 aspect-square flex justify-center items-center flex-col text-neutral-300 border-neutral-300 rounded-md border-dashed cursor-pointer"
-          >
-            {preview ? (
-              <img
-                src={preview + "/public"}
-                alt="preview"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <>
-                <PhotoIcon className="size-20" />
-                <div className="text-neutral-400 text-sm">Upload Photo</div>
-                <div className="text-red-500 text-sm"></div>
-              </>
-            )}
-          </label>
+    <form onSubmit={onValid}>
+      <div className="relative size-auto aspect-square">
+        <label
+          htmlFor="photo"
+          className="border-2 aspect-square flex justify-center items-center flex-col text-neutral-300 border-neutral-300 rounded-md border-dashed cursor-pointer"
+        >
+          {preview ? (
+            <Image
+              src={preview + "/public"}
+              alt="preview"
+              fill
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <>
+              <PhotoIcon className="size-20" />
+              <div className="text-neutral-400 text-sm">Upload Photo</div>
+              <div className="text-red-500 text-sm"></div>
+            </>
+          )}
+        </label>
+      </div>
+      <input
+        onChange={onImageChange}
+        type="file"
+        id="photo"
+        name="photo"
+        accept="image/*"
+        className="hidden"
+      />
+
+      <div className="p-5 flex items-center gap-3 border-b border-neutral-700">
+        <div className="size-10 rounded-full">
+          {product.user.avatar !== null ? (
+            <Image
+              src={product.user.avatar}
+              alt={product.user.username}
+              width={40}
+              height={40}
+              className="rounded-full"
+            />
+          ) : (
+            <UserIcon className="size-10" />
+          )}
         </div>
-        <input
-          onChange={onImageChange}
-          type="file"
-          id="photo"
-          name="photo"
-          accept="image/*"
-          className="hidden"
+        <div>
+          <h3>{product.user.username}</h3>
+        </div>
+      </div>
+
+      <div className="p-5">
+        <Input
+          type="text"
+          required
+          errors={[errors.title?.message ?? ""]}
+          defaultValue={product.title}
+          {...register("title")}
         />
 
-        <div className="p-5 flex items-center gap-3 border-b border-neutral-700">
-          <div className="size-10 rounded-full">
-            {product.user.avatar !== null ? (
-              <Image
-                src={product.user.avatar}
-                alt={product.user.username}
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
-            ) : (
-              <UserIcon className="size-10" />
-            )}
-          </div>
-          <div>
-            <h3>{product.user.username}</h3>
-          </div>
-        </div>
-
-        <div className="p-5">
+        <Input
+          type="text"
+          required
+          errors={[errors.description?.message ?? ""]}
+          defaultValue={product.description}
+          {...register("description")}
+        />
+      </div>
+      <div className="fixed w-full bottom-0 left-0 p-5 pb-10 bg-neutral-800 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <span className="text-neutral-400  font-semibold text-lg">₩</span>
           <Input
             type="text"
-            name="title"
             required
-            defaultValue={product.title}
-          />
-
-          <Input
-            type="description"
-            name="description"
-            required
-            defaultValue={product.description}
+            errors={[errors.price?.message ?? ""]}
+            defaultValue={product.price}
+            {...register("price")}
           />
         </div>
-        <div className="fixed w-full bottom-0 left-0 p-5 pb-10 bg-neutral-800 flex justify-between items-center">
-          <Input
-            type="price"
-            name="price"
-            required
-            defaultValue={formatToWon(Number(product.price))}
-          />
-          <div className="flex items-center">
-            {isOwner ? (
-              <button className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold">
-                Edit Product
-              </button>
-            ) : null}
-          </div>
+        <div className="flex items-center">
+          {isOwner ? (
+            <button className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold">
+              Edit Product
+            </button>
+          ) : null}
         </div>
-        {errors.root && (
-          <span className="text-red-500">{errors.root.message}</span>
-        )}
-      </form>
-    </div>
+      </div>
+    </form>
   );
 };
 export default EditForm;
+
+//데이터베이스 적용 안되는 것, 리다이렉트 안되는 것 확인해야함.
+//이미지 업로드 안되는 것 확인해야함.

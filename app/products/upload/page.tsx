@@ -3,11 +3,13 @@
 import Button from "@/components/button";
 import Input from "@/components/input";
 import { PhotoIcon } from "@heroicons/react/24/solid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getUploadURL, uploadProduct } from "./action";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema, ProductType } from "./schema";
+import Image from "next/image";
+
 export default function UploadProduct() {
   const [preview, setPreview] = useState("");
   const [uploadURL, setUploadURL] = useState("");
@@ -21,31 +23,53 @@ export default function UploadProduct() {
     resolver: zodResolver(productSchema),
   });
   const onImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-      target: { files },
-    } = event;
-    if (!files) return;
+    const files = event.target.files;
+
+    if (!files || files.length === 0) {
+      console.error("파일이 선택되지 않았습니다.");
+      return;
+    }
+
     const file = files[0];
-    const url = URL.createObjectURL(file);
-    setPreview(url);
-    setFile(file);
-    const { success, result } = await getUploadURL();
-    if (success) {
-      const { id, uploadURL } = result;
-      setUploadURL(uploadURL);
-      setValue(
-        "photos",
-        `https://imagedelivery.net/yjrOsMtY-Fgziaxi8JHHFw/${id}`
-      );
+
+    // 파일 타입 검사
+    if (!file.type.startsWith("image/")) {
+      console.error("이미지 파일만 업로드 가능합니다.");
+      return;
+    }
+
+    try {
+      const url = URL.createObjectURL(file);
+      setPreview(url);
+      setFile(file);
+
+      const { success, result } = await getUploadURL();
+      if (success) {
+        const { id, uploadURL } = result;
+        setUploadURL(uploadURL);
+        setValue(
+          "photos",
+          `https://imagedelivery.net/yjrOsMtY-Fgziaxi8JHHFw/${id}`
+        );
+      }
+      console.log(file, url);
+    } catch (error) {
+      console.error("이미지 처리 중 오류 발생:", error);
     }
   };
+
+  useEffect(() => {
+    if (preview) {
+      return () => URL.revokeObjectURL(preview);
+    }
+  }, [preview]);
 
   const onSubmit = handleSubmit(async (data: ProductType) => {
     if (!file) return;
     const cloudfareForm = new FormData();
     cloudfareForm.append("file", file);
     const response = await fetch(uploadURL, {
-      method: "post",
+      method: "POST",
       body: cloudfareForm,
     });
     if (response.status !== 200) return;
@@ -54,12 +78,9 @@ export default function UploadProduct() {
     formData.append("title", data.title);
     formData.append("price", data.price);
     formData.append("description", data.description);
-    formData.append("photo", data.photos);
-    //call upload product
-    const errors = await uploadProduct(formData);
-    if (errors) {
-      // setError("");
-    }
+    formData.append("photos", data.photos);
+
+    await uploadProduct(formData);
   });
 
   const onValid = async () => {
@@ -74,9 +95,10 @@ export default function UploadProduct() {
           className="border-2 aspect-square flex justify-center items-center flex-col text-neutral-300 border-neutral-300 rounded-md border-dashed cursor-pointer"
         >
           {preview ? (
-            <img
+            <Image
               src={preview}
               alt="preview"
+              fill
               className="w-full h-full object-cover"
             />
           ) : (

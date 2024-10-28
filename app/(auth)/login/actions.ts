@@ -32,7 +32,18 @@ const formSchema = z.object({
     .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
 });
 
-export const login = async (prevState: any, formData: FormData) => {
+// prevState의 타입을 명시적으로 정의
+interface LoginFormState {
+  fieldErrors?: {
+    email?: string[];
+    password?: string[];
+  };
+}
+
+export const login = async (
+  prevState: LoginFormState | null,
+  formData: FormData
+) => {
   const data = {
     email: formData.get("email"),
     password: formData.get("password"),
