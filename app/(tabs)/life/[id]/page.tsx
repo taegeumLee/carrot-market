@@ -1,3 +1,4 @@
+import LikeButton from "@/components/likeButton";
 import db from "@/lib/db";
 import getSession from "@/lib/session/session";
 import { formatToDate } from "@/lib/utils";
@@ -76,36 +77,7 @@ export default async function LifeDetail({
   params: { id: string };
 }) {
   const post = await getCachedPost(params.id);
-  const likePost = async () => {
-    "use server";
-    try {
-      const session = await getSession();
-      await db.like.create({
-        data: {
-          postId: Number(params.id),
-          userId: session.id!,
-        },
-      });
-      revalidateTag(`is-liked-status-${params.id}`);
-    } catch (e) {}
-  };
-  const dislikePost = async () => {
-    "use server";
-    try {
-      const session = await getSession();
-      await db.like.delete({
-        where: {
-          id: {
-            postId: Number(params.id),
-            userId: session.id!,
-          },
-        },
-      });
-      revalidateTag(`is-liked-status-${params.id}`);
-    } catch (e) {
-      console.log(e);
-    }
-  };
+
   const { likeCount, isLiked } = await getCachedIsLikedStatus(
     Number(params.id)
   );
@@ -129,16 +101,7 @@ export default async function LifeDetail({
           <EyeIcon className="size-5" />
           <span>{post.views} views</span>
         </div>
-        <form action={isLiked ? dislikePost : likePost}>
-          <button
-            className={`flex flex-row items-center gap-2 border border-neutral-200 rounded-md p-2 transition-colors ${
-              isLiked ? "bg-orange-500 text-white border-orange-500" : ""
-            }`}
-          >
-            <HeartIcon className="size-5" />
-            <span>{likeCount} likes</span>
-          </button>
-        </form>
+        <LikeButton isLiked={isLiked} likeCount={likeCount} postId={post.id} />
       </div>
     </div>
   );
