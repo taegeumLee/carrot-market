@@ -1,4 +1,6 @@
-import { dislikePost, likePost } from "@/app/(tabs)/life/[id]/actions";
+"use client";
+
+import { dislikePost, likePost } from "@/app/life/[id]/actions";
 import { HeartIcon } from "@heroicons/react/24/solid";
 import { useOptimistic } from "react";
 

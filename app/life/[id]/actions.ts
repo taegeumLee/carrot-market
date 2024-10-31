@@ -1,9 +1,10 @@
+"use server";
 import db from "@/lib/db";
 import getSession from "@/lib/session/session";
 import { revalidateTag } from "next/cache";
-
+import { commentSchema } from "./schema";
+import Input from "@/components/input";
 export async function likePost(postId: number) {
-  "use server";
   try {
     const session = await getSession();
     await db.like.create({
@@ -16,7 +17,6 @@ export async function likePost(postId: number) {
   } catch (e) {}
 }
 export async function dislikePost(postId: number) {
-  "use server";
   try {
     const session = await getSession();
     await db.like.delete({
