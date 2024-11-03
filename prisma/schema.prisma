@@ -19,11 +19,13 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  tokens   SMSToken[]
-  Products Product[]
-  Posts    Post[]
-  Comments Comment[]
-  Like     Like[]
+  tokens    SMSToken[]
+  Products  Product[]
+  Posts     Post[]
+  Comments  Comment[]
+  Likes     Like[]
+  chatRooms ChatRoom[]
+  messages  Message[]
 }
 
 model SMSToken {
@@ -89,4 +91,27 @@ model Comment {
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+model ChatRoom {
+  id    String @id @default(cuid())
+  users User[]
+
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  messages   Message[]
+}
+
+model Message {
+  id      Int    @id @default(autoincrement())
+  payload String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  chatRoomId String
+  room       ChatRoom @relation(fields: [chatRoomId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  userId Int
 }
