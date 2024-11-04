@@ -18,6 +18,17 @@ interface ChatMessagesListProps {
   avatar: string | null;
 }
 
+interface Message {
+  id: number;
+  payload: string;
+  created_at: Date;
+  userId: number;
+  user: {
+    avatar: string | null;
+    username: string;
+  };
+}
+
 export default function ChatMessagesList({
   initialMessages,
   userId,
@@ -25,46 +36,45 @@ export default function ChatMessagesList({
   username,
   avatar,
 }: ChatMessagesListProps) {
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const channel = useRef<RealtimeChannel>();
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-      target: { value },
-    } = e;
-    setMessage(value);
-  };
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      {
-        id: Date.now(),
-        payload: message,
-        created_at: new Date(),
-        userId,
-        user: {
-          username: "test",
-          avatar: null,
-        },
+
+  const sendMessage = async (message: string) => {
+    if (isSubmitting || !message.trim()) return;
+
+    setIsSubmitting(true);
+
+    // Optimistic update
+    const optimisticMessage = {
+      id: Date.now(),
+      payload: message,
+      created_at: new Date(),
+      userId,
+      user: {
+        avatar,
+        username,
       },
-    ]);
-    channel.current?.send({
-      type: "broadcast",
-      event: "message",
-      payload: {
-        id: Date.now(),
-        created_at: new Date(),
-        payload: message,
-        userId,
-        user: {
-          username,
-          avatar,
-        },
-      },
-    });
-    await saveMessage(message, chatRoomId);
-    setMessage("");
+    };
+
+    setMessages((prev) => [...prev, optimisticMessage]);
+
+    try {
+      const formData = new FormData();
+      formData.append("message", message);
+      formData.append("chatRoomId", chatRoomId);
+
+      await saveMessage(message, chatRoomId);
+    } catch (error) {
+      // 실패시 optimistic update 롤백
+      setMessages((prev) =>
+        prev.filter((msg) => msg.id !== optimisticMessage.id)
+      );
+      console.error("Failed to send message:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -79,6 +89,17 @@ export default function ChatMessagesList({
       channel.current?.unsubscribe();
     };
   }, []);
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await sendMessage(message);
+    setMessage("");
+  };
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessage(e.target.value);
+  };
+
   return (
     <div className="p-5 flex flex-col gap-5 min-h-screen justify-end">
       {messages.map((message) => (
@@ -118,6 +139,7 @@ export default function ChatMessagesList({
           required
           onChange={onChange}
           value={message}
+          placeholder="메시지를 입력하세요"
           className="bg-transparent rounded-full w-full h-10 focus:outline-none px-5 ring-2 focus:ring-4 transition ring-neutral-50 focus:ring-neutral-50 border-none placeholder:text-neutral-400"
           type="text"
         />

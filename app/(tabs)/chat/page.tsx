@@ -4,42 +4,23 @@ import { formatToDate } from "@/lib/utils";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
+import { unstable_cache as nextCache } from "next/cache";
 
-async function getLastMessage(roomId: string) {
-  try {
-    const lastMessage = await db.message.findFirst({
-      where: {
-        chatRoomId: roomId,
-      },
-      orderBy: {
-        created_at: "desc",
-      },
-    });
-
-    return lastMessage;
-  } catch (error) {
-    console.error("Error fetching last message:", error);
-    return null;
-  }
-}
-
-async function getChatRooms() {
-  try {
-    const session = await getSession();
-    if (!session.id) throw new Error("Session not found");
-
+// 채팅방 목록 캐싱
+const getCachedChatRooms = nextCache(
+  async (userId: number) => {
     const chatRooms = await db.chatRoom.findMany({
       where: {
         users: {
           some: {
-            id: session.id,
+            id: userId,
           },
         },
       },
-      select: {
-        id: true,
+      include: {
         users: {
           select: {
+            id: true,
             username: true,
             avatar: true,
           },
@@ -52,16 +33,49 @@ async function getChatRooms() {
       },
     });
     return chatRooms;
-  } catch (error) {
-    console.error("Error fetching chat rooms:", error);
-    return [];
+  },
+  ["chat-rooms"],
+  {
+    revalidate: 10, // 10초
+    tags: ["chat-rooms"],
   }
-}
+);
 
-export default async function Chat() {
-  const chatRooms = await getChatRooms();
-  const lastMessages = await Promise.all(
-    chatRooms.map((room) => getLastMessage(room.id))
+// 마지막 메시지 캐싱
+const getCachedLastMessages = nextCache(
+  async (chatRoomIds: string[]) => {
+    const lastMessages = await Promise.all(
+      chatRoomIds.map((roomId) =>
+        db.message.findFirst({
+          where: {
+            chatRoomId: roomId,
+          },
+          orderBy: {
+            created_at: "desc",
+          },
+          select: {
+            payload: true,
+            created_at: true,
+          },
+        })
+      )
+    );
+    return lastMessages;
+  },
+  ["last-messages"],
+  {
+    revalidate: 1, // 1초
+    tags: ["last-messages"],
+  }
+);
+
+export default async function ChatList() {
+  const session = await getSession();
+  if (!session.id) return null;
+
+  const chatRooms = await getCachedChatRooms(session.id);
+  const lastMessages = await getCachedLastMessages(
+    chatRooms.map((room) => room.id)
   );
 
   return (

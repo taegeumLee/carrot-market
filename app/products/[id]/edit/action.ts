@@ -66,9 +66,25 @@ export async function editProduct(formData: FormData) {
       },
     });
 
-    // 홈 페이지와 상세 페이지 모두 revalidate
+    // 모든 관련 경로 revalidate
+    revalidatePath("/");
+    revalidatePath("/products");
     revalidatePath(`/products/${product.id}`);
+    revalidatePath(`/products/${product.id}/edit`);
 
     return redirect(`/products/${product.id}`);
   }
+}
+
+export async function deleteProduct(productId: number) {
+  await db.product.delete({
+    where: {
+      id: productId,
+    },
+  });
+
+  // 모든 관련 경로 revalidate
+  revalidatePath("/");
+  revalidatePath("/products");
+  revalidatePath(`/products/${productId}`);
 }

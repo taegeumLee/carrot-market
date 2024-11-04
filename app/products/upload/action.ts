@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import fs from "fs/promises";
 import { productSchema } from "./schema";
+import { revalidatePath } from "next/cache";
 
 export async function uploadProduct(formData: FormData) {
   const data = {
@@ -38,7 +39,10 @@ export async function uploadProduct(formData: FormData) {
         },
       });
       console.log(product);
-      redirect(`/products/${product.id}`);
+      revalidatePath("/");
+      revalidatePath("/products");
+      revalidatePath(`/products/${product.id}`);
+      return redirect(`/products/${product.id}`);
     }
   }
 }

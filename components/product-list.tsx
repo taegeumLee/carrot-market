@@ -4,6 +4,8 @@ import { InitialProduct } from "@/app/(tabs)/home/page";
 import ListProduct from "./listProduct";
 import { useEffect, useRef, useState } from "react";
 import { getMoreProducts } from "@/app/(tabs)/home/actions";
+import Link from "next/link";
+
 interface ProductListProps {
   initialProducts: InitialProduct;
 }
@@ -49,7 +51,9 @@ export default function ProductList({ initialProducts }: ProductListProps) {
   return (
     <div className="p-5 flex flex-col gap-5">
       {products.map((product) => (
-        <ListProduct key={product.id} {...product} />
+        <Link key={product.id} href={`/products/${product.id}`} prefetch={true}>
+          <ListProduct {...product} />
+        </Link>
       ))}
       <div ref={observerTarget} className="h-10">
         {isLoading && <p className="text-center">Loading...</p>}

@@ -1,6 +1,5 @@
 import { formatToDate, formatToWon } from "@/lib/utils";
 import Image from "next/image";
-import Link from "next/link";
 
 interface ListProductProps {
   title: string;
@@ -8,6 +7,7 @@ interface ListProductProps {
   created_at: Date;
   photos: string;
   id: number;
+  onClick?: () => void;
 }
 
 export default function ListProduct({
@@ -16,11 +16,12 @@ export default function ListProduct({
   created_at,
   photos,
   id,
+  onClick,
 }: ListProductProps) {
   return (
-    <Link
-      href={`/products/${id}`}
-      className="flex gap-5 p-3 bg-neutral-800 rounded-lg"
+    <div
+      onClick={onClick}
+      className="flex gap-5 p-3 bg-neutral-800 rounded-lg cursor-pointer"
     >
       <div className="relative size-28 rounded-md overflow-hidden">
         <Image
@@ -38,6 +39,6 @@ export default function ListProduct({
         </span>
         <span className="text-lg font-semibold">{formatToWon(price)}</span>
       </div>
-    </Link>
+    </div>
   );
 }

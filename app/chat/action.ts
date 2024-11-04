@@ -2,6 +2,7 @@
 
 import db from "@/lib/db";
 import getSession from "@/lib/session/session";
+import { revalidatePath } from "next/cache";
 
 export async function saveMessage(payload: string, chatRoomId: string) {
   const session = await getSession();
@@ -11,8 +12,11 @@ export async function saveMessage(payload: string, chatRoomId: string) {
       chatRoomId,
       userId: session.id!,
     },
-    select: {
-      id: true,
-    },
   });
+
+  // 채팅방 목록과 채팅방 페이지 revalidate
+  revalidatePath("/chat");
+  revalidatePath(`/chat/${chatRoomId}`);
+
+  return message;
 }
