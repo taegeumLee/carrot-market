@@ -1,4 +1,4 @@
-import Comments from "@/components/Comments";
+import Comments from "@/components/comments";
 import LikeButton from "@/components/likeButton";
 import db from "@/lib/db";
 import getSession from "@/lib/session/session";
